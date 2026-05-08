@@ -29,6 +29,27 @@ The dataset contains 600 labelled support tickets in multiple languages. Only th
 - Build instruction-tuned prompts from the five allowed columns
 - Stratified train/test split that preserves the original class distribution
 
+**Output format.** Each split is serialised as a JSONL file (`data/train.jsonl`, `data/test.jsonl`) where every line is an OpenAI-compatible chat example:
+
+```json
+{
+  "messages": [
+    {"role": "system",    "content": "You are a support ticket classification agent …"},
+    {"role": "user",      "content": "Language: French\nBusiness type: E-commerce\nSubject: …\nBody: …"},
+    {"role": "assistant", "content": "Returns and Exchanges"}
+  ]
+}
+```
+
+**Design decisions.**
+
+| Decision | Rationale |
+|---|---|
+| Stratified split on `queue` (80 / 20) | Preserves per-class frequency so the test set reflects the real distribution across all 10 queues. |
+| All four metadata fields in the user turn | `language` and `business_type` are strong priors for routing; including them at inference time lets the model generalise across client sectors without leaking label information. |
+| Assistant turn = bare queue label | Minimises the generation target to a fixed vocabulary, which reduces training loss noise and makes decoding deterministic. |
+| Fixed `random_seed = 42` | Ensures reproducible splits for fair comparison between the base model and the fine-tuned model. |
+
 ### 2. LLM fine-tuning
 
 - Base model: an open-weight LLM (Llama / Mistral family)
