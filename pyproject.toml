@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "LLM fine-tuning for multilingual customer support ticket classification"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "pandas>=2.2",
+    "scikit-learn>=1.5",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
