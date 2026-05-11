@@ -67,12 +67,6 @@ The dataset contains 600 labelled support tickets in multiple languages. Only th
 | `max_new_tokens=10` at inference | Longest label ("Service Outages and Maintenance") is 4 tokens; capping generation avoids runaway output and makes decoding deterministic. |
 | Label normalisation fallback | Strips whitespace/punctuation, tries exact then substring match against the 10 queues, falls back to "General Inquiry" to protect evaluation from rare malformed outputs. |
 
-**GPU sandbox setup** (run once before training):
-
-```bash
-uv sync
-pip install "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git"
-```
 
 ### 3. Evaluation and comparison
 
@@ -100,15 +94,18 @@ uv run python -m src.main --step dataset
 ### Step 2 — Fine-tune (GPU sandbox required)
 
 ```bash
-python -m src.main --step finetune
+uv pip install "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git"
+uv run python -m src.main --step finetune
 ```
+
+> **Note:** Unsloth dependency resolution (torch, triton, xformers…) can take 5-10 minutes on first install
 
 Training time: ~10-15 minutes on a 24 GB GPU.
 
 ### Step 3 — Evaluate base vs fine-tuned
 
 ```bash
-python -m src.main --step evaluate
+uv run python -m src.main --step evaluate
 ```
 
 Results are printed to the console and saved to `data/evaluation_results.json`.
