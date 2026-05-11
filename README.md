@@ -93,10 +93,8 @@ uv run python -m src.main --step dataset
 
 ### Step 2 — Fine-tune (GPU sandbox required)
 
-The GPU sandbox ships with its own Python environment (`/opt/conda`). Use `python3` directly — no `uv run` needed:
-
 ```bash
-python3 -m src.main --step finetune
+uv run python -m src.main --step finetune
 ```
 
 Training time: ~15-20 minutes on a 24 GB GPU.
@@ -104,7 +102,7 @@ Training time: ~15-20 minutes on a 24 GB GPU.
 ### Step 3 — Evaluate base vs fine-tuned
 
 ```bash
-python3 -m src.main --step evaluate
+uv run python -m src.main --step evaluate
 ```
 
 Results are printed to the console and saved to `data/evaluation_results.json`.
