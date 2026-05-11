@@ -1,8 +1,8 @@
 import torch
 from datasets import load_dataset
 from peft import LoraConfig, get_peft_model
-from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
-from trl import SFTTrainer
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from trl import SFTConfig, SFTTrainer
 
 import config
 
@@ -63,9 +63,9 @@ def train():
         model=model,
         processing_class=tokenizer,
         train_dataset=dataset,
-        dataset_text_field="text",
-        max_seq_length=config.MAX_SEQ_LENGTH,
-        args=TrainingArguments(
+        args=SFTConfig(
+            dataset_text_field="text",
+            max_seq_length=config.MAX_SEQ_LENGTH,
             output_dir=str(config.MODEL_DIR),
             num_train_epochs=config.NUM_EPOCHS,
             per_device_train_batch_size=config.BATCH_SIZE,
