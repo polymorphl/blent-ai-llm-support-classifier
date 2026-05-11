@@ -31,7 +31,7 @@ def step_finetune():
 
 def step_evaluate():
     import torch
-    from unsloth import FastLanguageModel
+    from peft import PeftModel
     from finetune.trainer import load_base_model
     from finetune.evaluator import evaluate
 
@@ -45,12 +45,8 @@ def step_evaluate():
     torch.cuda.empty_cache()
 
     print("\n=== Evaluating fine-tuned model ===")
-    ft_model, ft_tokenizer = FastLanguageModel.from_pretrained(
-        model_name=str(config.MODEL_DIR),
-        max_seq_length=config.MAX_SEQ_LENGTH,
-        load_in_4bit=config.LOAD_IN_4BIT,
-        dtype=None,
-    )
+    ft_base, ft_tokenizer = load_base_model()
+    ft_model = PeftModel.from_pretrained(ft_base, str(config.MODEL_DIR))
     ft_results = evaluate(ft_model, ft_tokenizer)
     print(f"Fine-tuned weighted F1: {ft_results['weighted_f1']:.4f}")
 

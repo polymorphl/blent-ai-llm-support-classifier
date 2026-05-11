@@ -15,8 +15,6 @@ def normalise_label(text: str) -> str:
 
 def predict(model, tokenizer, messages: list[dict], max_new_tokens: int = 10) -> str:
     import torch
-    from unsloth import FastLanguageModel
-    FastLanguageModel.for_inference(model)
 
     text = tokenizer.apply_chat_template(
         messages, tokenize=False, add_generation_prompt=True

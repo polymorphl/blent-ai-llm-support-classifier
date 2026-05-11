@@ -1,41 +1,48 @@
+import torch
 from datasets import load_dataset
+from peft import LoraConfig, get_peft_model
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TrainingArguments
 from trl import SFTTrainer
-from transformers import TrainingArguments
 
 import config
 
 
 def load_base_model():
-    from unsloth import FastLanguageModel
-    model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=config.BASE_MODEL,
-        max_seq_length=config.MAX_SEQ_LENGTH,
+    bnb_config = BitsAndBytesConfig(
         load_in_4bit=config.LOAD_IN_4BIT,
-        dtype=None,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16,
+        bnb_4bit_use_double_quant=True,
     )
+    model = AutoModelForCausalLM.from_pretrained(
+        config.BASE_MODEL,
+        quantization_config=bnb_config,
+        device_map="auto",
+    )
+    tokenizer = AutoTokenizer.from_pretrained(config.BASE_MODEL)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
     return model, tokenizer
 
 
 def apply_lora(model):
-    from unsloth import FastLanguageModel
-    return FastLanguageModel.get_peft_model(
-        model,
+    lora_config = LoraConfig(
         r=config.LORA_R,
         lora_alpha=config.LORA_ALPHA,
         lora_dropout=config.LORA_DROPOUT,
         target_modules=config.TARGET_MODULES,
         bias="none",
-        use_gradient_checkpointing="unsloth",
-        random_state=config.RANDOM_SEED,
+        task_type="CAUSAL_LM",
     )
+    return get_peft_model(model, lora_config)
 
 
 def train():
     model, tokenizer = load_base_model()
     model = apply_lora(model)
+    model.print_trainable_parameters()
 
     dataset = load_dataset("json", data_files=str(config.TRAIN_PATH), split="train")
-
     dataset = dataset.map(
         lambda ex: {"text": tokenizer.apply_chat_template(
             ex["messages"], tokenize=False, add_generation_prompt=False
