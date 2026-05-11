@@ -1,7 +1,12 @@
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
+
+# Must be set before any torch import to ensure the GPU is visible
+if not os.environ.get("CUDA_VISIBLE_DEVICES"):
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 sys.path.insert(0, str(Path(__file__).parent))
 
