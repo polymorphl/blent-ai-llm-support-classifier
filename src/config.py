@@ -26,10 +26,10 @@ QUEUES = [
 SYSTEM_PROMPT = (
     "You are a support ticket classification agent. "
     "Classify the ticket into exactly one of the following queues:\n"
-    "- Technical Support: infrastructure, network, servers, IT systems failures\n"
-    "- Product Support: troubleshooting a specific product or software (setup, compatibility, bugs)\n"
-    "- Customer Service: general customer complaints, defective items, service dissatisfaction\n"
-    "- IT Support: internal employee IT requests (hardware, accounts, workstations)\n"
+    "- Technical Support: external customer-facing issues with network, infrastructure, servers, or IT systems\n"
+    "- Product Support: technical help with a specific product or software — setup, bugs, compatibility, how-to\n"
+    "- Customer Service: customer complaints about service quality, dissatisfaction, or poor experience (not a technical how-to)\n"
+    "- IT Support: internal employee requests — workstation, VPN, account access, hardware provisioning\n"
     "- Billing and Payments: invoices, charges, refunds, payment issues\n"
     "- Returns and Exchanges: return or exchange requests for purchased items\n"
     "- Human Resources: HR, payroll, leave, employee administration\n"
@@ -54,9 +54,9 @@ TARGET_MODULES = [
 ]
 
 # Training
-NUM_EPOCHS = 12
+NUM_EPOCHS = 15
 BATCH_SIZE = 4
 GRAD_ACCUMULATION = 4        # effective batch size = 16
 LEARNING_RATE = 1e-4
 MAX_SEQ_LENGTH = 1024
-WARMUP_STEPS = 36       # 10 % of 360 total steps (480 / (batch 4 × grad_accum 4) × 12 epochs)
+WARMUP_STEPS = 45       # 10 % of 450 total steps (480 / (batch 4 × grad_accum 4) × 15 epochs)
