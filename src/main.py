@@ -1,9 +1,8 @@
+import argparse
 import json
 import sys
 from pathlib import Path
 
-# Ensure src/ is on sys.path so dataset.* and config are importable
-# whether this file is run as `python -m src.main` or `python src/main.py`
 sys.path.insert(0, str(Path(__file__).parent))
 
 import config
@@ -12,20 +11,81 @@ from dataset.loader import load_tickets
 from dataset.splitter import split
 
 
-def main():
+def step_dataset():
     df = load_tickets(config.SEED_CSV)
     train_df, test_df = split(df, test_size=config.TEST_SIZE, random_seed=config.RANDOM_SEED)
-
     config.DATA_DIR.mkdir(exist_ok=True)
-
     for path, subset_df in [(config.TRAIN_PATH, train_df), (config.TEST_PATH, test_df)]:
         examples = format_dataset(subset_df)
         with open(path, "w", encoding="utf-8") as f:
             for example in examples:
                 f.write(json.dumps(example, ensure_ascii=False) + "\n")
-
     print(f"train: {len(train_df)} examples → {config.TRAIN_PATH}")
     print(f"test:  {len(test_df)} examples → {config.TEST_PATH}")
+
+
+def step_finetune():
+    from finetune.trainer import train
+    train()
+
+
+def step_evaluate():
+    import torch
+    from unsloth import FastLanguageModel
+    from finetune.trainer import load_base_model
+    from finetune.evaluator import evaluate
+
+    print("=== Evaluating base model (zero-shot) ===")
+    base_model, tokenizer = load_base_model()
+    base_results = evaluate(base_model, tokenizer)
+    print(f"Base weighted F1: {base_results['weighted_f1']:.4f}")
+
+    # Free GPU memory before loading the fine-tuned model
+    del base_model
+    torch.cuda.empty_cache()
+
+    print("\n=== Evaluating fine-tuned model ===")
+    ft_model, ft_tokenizer = FastLanguageModel.from_pretrained(
+        model_name=str(config.MODEL_DIR),
+        max_seq_length=config.MAX_SEQ_LENGTH,
+        load_in_4bit=config.LOAD_IN_4BIT,
+        dtype=None,
+    )
+    ft_results = evaluate(ft_model, ft_tokenizer)
+    print(f"Fine-tuned weighted F1: {ft_results['weighted_f1']:.4f}")
+
+    print("\n=== Summary ===")
+    print(f"{'Model':<25} {'Weighted F1':>12}")
+    print("-" * 38)
+    print(f"{'Mistral-7B base':<25} {base_results['weighted_f1']:>12.4f}")
+    print(f"{'Mistral-7B QLoRA':<25} {ft_results['weighted_f1']:>12.4f}")
+
+    output = {
+        "base": base_results,
+        "finetuned": ft_results,
+    }
+    results_path = config.DATA_DIR / "evaluation_results.json"
+    with open(results_path, "w") as f:
+        json.dump(output, f, indent=2)
+    print(f"\nDetailed results saved to {results_path}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="LLM Support Classifier")
+    parser.add_argument(
+        "--step",
+        choices=["dataset", "finetune", "evaluate"],
+        default="dataset",
+        help="Pipeline step to run (default: dataset)",
+    )
+    args = parser.parse_args()
+
+    if args.step == "dataset":
+        step_dataset()
+    elif args.step == "finetune":
+        step_finetune()
+    elif args.step == "evaluate":
+        step_evaluate()
 
 
 if __name__ == "__main__":

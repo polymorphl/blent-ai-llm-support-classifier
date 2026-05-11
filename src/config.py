@@ -29,3 +29,25 @@ SYSTEM_PROMPT = (
     + "\n".join(f"- {q}" for q in QUEUES)
     + "\nRespond with only the queue name, nothing else."
 )
+
+# Fine-tuning
+BASE_MODEL = "mistralai/Mistral-7B-v0.3"
+MODEL_DIR = ROOT / "models" / "mistral-finetuned"
+
+# QLoRA
+LOAD_IN_4BIT = True
+LORA_R = 16
+LORA_ALPHA = 32
+LORA_DROPOUT = 0.05
+TARGET_MODULES = [
+    "q_proj", "k_proj", "v_proj", "o_proj",
+    "gate_proj", "up_proj", "down_proj",
+]
+
+# Training
+NUM_EPOCHS = 3
+BATCH_SIZE = 4
+GRAD_ACCUMULATION = 4        # effective batch size = 16
+LEARNING_RATE = 2e-4
+MAX_SEQ_LENGTH = 1024
+WARMUP_RATIO = 0.1
