@@ -6,4 +6,7 @@ __pycache__/
 # MacOS
 .DS_Store
 
+# Hugging Face
+.hf_cache
+
 data/
