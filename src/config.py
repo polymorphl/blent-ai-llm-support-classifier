@@ -36,8 +36,8 @@ MODEL_DIR = ROOT / "models" / "mistral-finetuned"
 
 # QLoRA
 LOAD_IN_4BIT = True
-LORA_R = 16
-LORA_ALPHA = 32
+LORA_R = 32
+LORA_ALPHA = 64
 LORA_DROPOUT = 0.05
 TARGET_MODULES = [
     "q_proj", "k_proj", "v_proj", "o_proj",
@@ -45,9 +45,9 @@ TARGET_MODULES = [
 ]
 
 # Training
-NUM_EPOCHS = 8
+NUM_EPOCHS = 12
 BATCH_SIZE = 4
 GRAD_ACCUMULATION = 4        # effective batch size = 16
-LEARNING_RATE = 2e-4
+LEARNING_RATE = 1e-4
 MAX_SEQ_LENGTH = 1024
-WARMUP_STEPS = 24       # 10 % of 240 total steps (480 / (batch 4 × grad_accum 4) × 8 epochs)
+WARMUP_STEPS = 36       # 10 % of 360 total steps (480 / (batch 4 × grad_accum 4) × 12 epochs)
