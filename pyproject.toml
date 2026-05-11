@@ -13,8 +13,6 @@ dependencies = [
     "peft>=0.10",
     "bitsandbytes>=0.43",
     "accelerate>=0.29",
-    # unsloth must be installed separately on the GPU sandbox:
-    # pip install "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git"
 ]
 
 [tool.pytest.ini_options]
