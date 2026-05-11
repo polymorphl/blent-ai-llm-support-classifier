@@ -50,43 +50,23 @@ def step_evaluate():
     del base_model
     torch.cuda.empty_cache()
 
-    # Collect checkpoints sorted by step, plus the final saved model
-    checkpoints = sorted(
-        config.MODEL_DIR.glob("checkpoint-*"),
-        key=lambda p: int(p.name.split("-")[1]),
-    )
-    candidates = checkpoints + [config.MODEL_DIR]
+    print("\n=== Evaluating fine-tuned model ===")
+    ft_base, ft_tokenizer = load_base_model()
+    ft_model = PeftModel.from_pretrained(ft_base, str(config.MODEL_DIR))
+    ft_results = evaluate(ft_model, ft_tokenizer)
+    print(f"Fine-tuned weighted F1: {ft_results['weighted_f1']:.4f}")
 
-    print(f"\n=== Evaluating {len(candidates)} checkpoint(s) ===")
-    checkpoint_results = {}
-    for ckpt_path in candidates:
-        label = ckpt_path.name if ckpt_path != config.MODEL_DIR else "final"
-        ft_base, ft_tokenizer = load_base_model()
-        ft_model = PeftModel.from_pretrained(ft_base, str(ckpt_path))
-        result = evaluate(ft_model, ft_tokenizer)
-        f1 = result["weighted_f1"]
-        checkpoint_results[label] = result
-        print(f"  {label:<30} F1={f1:.4f}")
-        del ft_model, ft_base
-        torch.cuda.empty_cache()
+    print("\n=== Summary ===")
+    print(f"{'Model':<25} {'Weighted F1':>12}")
+    print("-" * 38)
+    print(f"{'Mistral-7B base':<25} {base_results['weighted_f1']:>12.4f}")
+    print(f"{'Mistral-7B QLoRA':<25} {ft_results['weighted_f1']:>12.4f}")
 
-    best_label = max(checkpoint_results, key=lambda k: checkpoint_results[k]["weighted_f1"])
-    best_f1 = checkpoint_results[best_label]["weighted_f1"]
-
-    print(f"\n=== Summary ===")
-    print(f"{'Model':<35} {'Weighted F1':>12}")
-    print("-" * 48)
-    print(f"{'Mistral-7B base':<35} {base_results['weighted_f1']:>12.4f}")
-    for label, result in checkpoint_results.items():
-        marker = " ← best" if label == best_label else ""
-        print(f"{'Mistral-7B QLoRA ' + label:<35} {result['weighted_f1']:>12.4f}{marker}")
-
-    output = {"base": base_results, "checkpoints": checkpoint_results, "best": best_label}
+    output = {"base": base_results, "finetuned": ft_results}
     results_path = config.DATA_DIR / "evaluation_results.json"
     with open(results_path, "w") as f:
         json.dump(output, f, indent=2)
-    print(f"\nBest: {best_label} (F1={best_f1:.4f})")
-    print(f"Detailed results saved to {results_path}")
+    print(f"\nDetailed results saved to {results_path}")
 
 
 def main():
