@@ -26,8 +26,17 @@ QUEUES = [
 SYSTEM_PROMPT = (
     "You are a support ticket classification agent. "
     "Classify the ticket into exactly one of the following queues:\n"
-    + "\n".join(f"- {q}" for q in QUEUES)
-    + "\nRespond with only the queue name, nothing else."
+    "- Technical Support: infrastructure, network, servers, IT systems failures\n"
+    "- Product Support: troubleshooting a specific product or software (setup, compatibility, bugs)\n"
+    "- Customer Service: general customer complaints, defective items, service dissatisfaction\n"
+    "- IT Support: internal employee IT requests (hardware, accounts, workstations)\n"
+    "- Billing and Payments: invoices, charges, refunds, payment issues\n"
+    "- Returns and Exchanges: return or exchange requests for purchased items\n"
+    "- Human Resources: HR, payroll, leave, employee administration\n"
+    "- Service Outages and Maintenance: service downtime, planned maintenance\n"
+    "- Sales and Pre-Sales: pricing, availability, pre-purchase questions\n"
+    "- General Inquiry: anything that does not fit the above categories\n"
+    "Respond with only the queue name, nothing else."
 )
 
 # Fine-tuning
