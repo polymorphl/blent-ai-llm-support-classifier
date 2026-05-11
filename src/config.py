@@ -9,7 +9,7 @@ TEST_PATH = DATA_DIR / "test.jsonl"
 
 TEST_SIZE = 0.2
 RANDOM_SEED = 42   # dataset split — keep fixed for comparable evaluation
-TRAIN_SEED = 2024  # training seed — tune this to find a good initialization
+TRAIN_SEED = 0     # training seed — tune this to find a good initialization
 
 QUEUES = [
     "Technical Support",
@@ -55,9 +55,9 @@ TARGET_MODULES = [
 ]
 
 # Training
-NUM_EPOCHS = 15
+NUM_EPOCHS = 10
 BATCH_SIZE = 4
 GRAD_ACCUMULATION = 4        # effective batch size = 16
 LEARNING_RATE = 1e-4
 MAX_SEQ_LENGTH = 1024
-WARMUP_STEPS = 45       # 10 % of 450 total steps (480 / (batch 4 × grad_accum 4) × 15 epochs)
+WARMUP_STEPS = 30       # 10 % of 300 total steps (480 / (batch 4 × grad_accum 4) × 10 epochs)
