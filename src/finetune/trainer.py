@@ -22,6 +22,17 @@ def load_base_model():
     tokenizer = AutoTokenizer.from_pretrained(config.BASE_MODEL)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+    # Mistral-7B-v0.3 ships without a chat_template — set Mistral instruct format
+    tokenizer.chat_template = (
+        "{{ bos_token }}"
+        "{% for message in messages %}"
+        "{% if message['role'] == 'system' %}[INST] {{ message['content'] }}\n\n"
+        "{% elif message['role'] == 'user' %}{{ message['content'] }} [/INST]"
+        "{% elif message['role'] == 'assistant' %} {{ message['content'] }}{{ eos_token }}"
+        "{% endif %}"
+        "{% endfor %}"
+        "{% if add_generation_prompt %} {% endif %}"
+    )
     return model, tokenizer
 
 
