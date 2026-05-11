@@ -8,6 +8,9 @@ from pathlib import Path
 if not os.environ.get("CUDA_VISIBLE_DEVICES"):
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
+# Cache HF model weights in the workspace so they survive container restarts
+os.environ.setdefault("HF_HOME", str(Path(__file__).parent.parent / ".hf_cache"))
+
 sys.path.insert(0, str(Path(__file__).parent))
 
 import config

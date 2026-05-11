@@ -50,4 +50,4 @@ BATCH_SIZE = 4
 GRAD_ACCUMULATION = 4        # effective batch size = 16
 LEARNING_RATE = 2e-4
 MAX_SEQ_LENGTH = 1024
-WARMUP_RATIO = 0.1
+WARMUP_STEPS = 9        # 10 % of 90 total steps (480 / (batch 4 × grad_accum 4) × 3 epochs)

@@ -1,38 +1,36 @@
 import torch
 from datasets import load_dataset
 from peft import LoraConfig, get_peft_model
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TrainingArguments
+from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
 from trl import SFTTrainer
 
 import config
 
+_CHAT_TEMPLATE = (
+    "{{ bos_token }}"
+    "{% for message in messages %}"
+    "{% if message['role'] == 'system' %}[INST] {{ message['content'] }}\n\n"
+    "{% elif message['role'] == 'user' %}{{ message['content'] }} [/INST]"
+    "{% elif message['role'] == 'assistant' %} {{ message['content'] }}{{ eos_token }}"
+    "{% endif %}"
+    "{% endfor %}"
+    "{% if add_generation_prompt %} {% endif %}"
+)
+
 
 def load_base_model():
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=config.LOAD_IN_4BIT,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.bfloat16,
-        bnb_4bit_use_double_quant=True,
-    )
     model = AutoModelForCausalLM.from_pretrained(
         config.BASE_MODEL,
-        quantization_config=bnb_config,
+        torch_dtype=torch.float16,
         device_map="auto",
     )
+    model.gradient_checkpointing_enable()
+    model.enable_input_require_grads()
+
     tokenizer = AutoTokenizer.from_pretrained(config.BASE_MODEL)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    # Mistral-7B-v0.3 ships without a chat_template — set Mistral instruct format
-    tokenizer.chat_template = (
-        "{{ bos_token }}"
-        "{% for message in messages %}"
-        "{% if message['role'] == 'system' %}[INST] {{ message['content'] }}\n\n"
-        "{% elif message['role'] == 'user' %}{{ message['content'] }} [/INST]"
-        "{% elif message['role'] == 'assistant' %} {{ message['content'] }}{{ eos_token }}"
-        "{% endif %}"
-        "{% endfor %}"
-        "{% if add_generation_prompt %} {% endif %}"
-    )
+    tokenizer.chat_template = _CHAT_TEMPLATE
     return model, tokenizer
 
 
@@ -73,9 +71,9 @@ def train():
             per_device_train_batch_size=config.BATCH_SIZE,
             gradient_accumulation_steps=config.GRAD_ACCUMULATION,
             learning_rate=config.LEARNING_RATE,
-            warmup_ratio=config.WARMUP_RATIO,
+            warmup_steps=config.WARMUP_STEPS,
             lr_scheduler_type="cosine",
-            bf16=True,
+            fp16=True,
             logging_steps=10,
             save_strategy="no",
             report_to="none",
