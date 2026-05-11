@@ -52,9 +52,27 @@ The dataset contains 600 labelled support tickets in multiple languages. Only th
 
 ### 2. LLM fine-tuning
 
-- Base model: an open-weight LLM (Llama / Mistral family)
-- Adaptation method: SFT with LoRA / QLoRA (choice left to the engineer)
+- Base model: **Mistral-7B-v0.3**
+- Adaptation method: **SFT + QLoRA** (4-bit quantisation via bitsandbytes, LoRA r=16 α=32 on all attention + MLP projection layers)
+- Training library: **Unsloth** + TRL `SFTTrainer` (2× faster training, ~50 % less VRAM)
+- Hardware: NVIDIA GPU with ≥ 24 GB VRAM
 - Target: weighted F1-score ≥ 92 % on the held-out test set
+
+**Design decisions.**
+
+| Decision | Rationale |
+|---|---|
+| QLoRA (4-bit) over full LoRA | Fits Mistral-7B in 24 GB with room for batch size 4; quality gap is negligible on 10 well-separated classes. |
+| Target modules include MLP (gate/up/down) | Classification tasks benefit from fine-tuning feed-forward layers, not just attention. |
+| `max_new_tokens=10` at inference | Longest label ("Service Outages and Maintenance") is 4 tokens; capping generation avoids runaway output and makes decoding deterministic. |
+| Label normalisation fallback | Strips whitespace/punctuation, tries exact then substring match against the 10 queues, falls back to "General Inquiry" to protect evaluation from rare malformed outputs. |
+
+**GPU sandbox setup** (run once before training):
+
+```bash
+uv sync
+pip install "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git"
+```
 
 ### 3. Evaluation and comparison
 
@@ -71,8 +89,29 @@ $$F1 = \sum_{j=1}^{|C|} \alpha_j \, F1_j \qquad \alpha_j = \frac{n_j}{n}$$
 
 ```bash
 uv sync
-uv run python -m src.main
 ```
+
+### Step 1 — Build the dataset
+
+```bash
+uv run python -m src.main --step dataset
+```
+
+### Step 2 — Fine-tune (GPU sandbox required)
+
+```bash
+python -m src.main --step finetune
+```
+
+Training time: ~10-15 minutes on a 24 GB GPU.
+
+### Step 3 — Evaluate base vs fine-tuned
+
+```bash
+python -m src.main --step evaluate
+```
+
+Results are printed to the console and saved to `data/evaluation_results.json`.
 
 ## Tests
 
