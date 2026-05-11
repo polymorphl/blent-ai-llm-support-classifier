@@ -21,7 +21,7 @@ _CHAT_TEMPLATE = (
 def load_base_model():
     model = AutoModelForCausalLM.from_pretrained(
         config.BASE_MODEL,
-        torch_dtype=torch.float16,
+        dtype=torch.float16,
         device_map="auto",
     )
     model.gradient_checkpointing_enable()
