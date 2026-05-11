@@ -8,7 +8,8 @@ TRAIN_PATH = DATA_DIR / "train.jsonl"
 TEST_PATH = DATA_DIR / "test.jsonl"
 
 TEST_SIZE = 0.2
-RANDOM_SEED = 42
+RANDOM_SEED = 42   # dataset split — keep fixed for comparable evaluation
+TRAIN_SEED = 2024  # training seed — tune this to find a good initialization
 
 QUEUES = [
     "Technical Support",
