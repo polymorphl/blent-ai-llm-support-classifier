@@ -47,6 +47,9 @@ def apply_lora(model):
 
 
 def train():
+    import transformers
+    transformers.set_seed(config.RANDOM_SEED)
+
     model, tokenizer = load_base_model()
     model = apply_lora(model)
     model.print_trainable_parameters()
@@ -77,6 +80,8 @@ def train():
             logging_steps=10,
             save_strategy="no",
             report_to="none",
+            seed=config.RANDOM_SEED,
+            data_seed=config.RANDOM_SEED,
         ),
     )
 
