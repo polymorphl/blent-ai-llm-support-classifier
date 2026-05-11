@@ -54,7 +54,7 @@ The dataset contains 600 labelled support tickets in multiple languages. Only th
 
 - Base model: **Mistral-7B-v0.3**
 - Adaptation method: **SFT + QLoRA** (4-bit quantisation via bitsandbytes, LoRA r=16 α=32 on all attention + MLP projection layers)
-- Training library: **Unsloth** + TRL `SFTTrainer` (2× faster training, ~50 % less VRAM)
+- Training library: **TRL `SFTTrainer`** + HF Transformers + PEFT
 - Hardware: NVIDIA GPU with ≥ 24 GB VRAM
 - Target: weighted F1-score ≥ 92 % on the held-out test set
 
@@ -93,19 +93,18 @@ uv run python -m src.main --step dataset
 
 ### Step 2 — Fine-tune (GPU sandbox required)
 
+The GPU sandbox ships with its own Python environment (`/opt/conda`). Use `python3` directly — no `uv run` needed:
+
 ```bash
-uv pip install "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git"
-uv run python -m src.main --step finetune
+python3 -m src.main --step finetune
 ```
 
-> **Note:** Unsloth dependency resolution (torch, triton, xformers…) can take 5-10 minutes on first install
-
-Training time: ~10-15 minutes on a 24 GB GPU.
+Training time: ~15-20 minutes on a 24 GB GPU.
 
 ### Step 3 — Evaluate base vs fine-tuned
 
 ```bash
-uv run python -m src.main --step evaluate
+python3 -m src.main --step evaluate
 ```
 
 Results are printed to the console and saved to `data/evaluation_results.json`.
