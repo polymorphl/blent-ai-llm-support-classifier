@@ -65,7 +65,7 @@ def train():
         train_dataset=dataset,
         args=SFTConfig(
             dataset_text_field="text",
-            max_seq_length=config.MAX_SEQ_LENGTH,
+            max_length=config.MAX_SEQ_LENGTH,
             output_dir=str(config.MODEL_DIR),
             num_train_epochs=config.NUM_EPOCHS,
             per_device_train_batch_size=config.BATCH_SIZE,
