@@ -47,13 +47,13 @@ ID2LABEL = {i: q for i, q in enumerate(QUEUES)}
 BASE_MODEL = "mistralai/Mistral-7B-v0.3"
 
 # Classifier fine-tuning (RoBERTa)
-CLF_MODEL = "FacebookAI/roberta-base"
-CLF_MODEL_DIR = ROOT / "models" / "roberta-finetuned"
+CLF_MODEL = "FacebookAI/xlm-roberta-base"
+CLF_MODEL_DIR = ROOT / "models" / "xlm-roberta-finetuned"
 
 # Training
-NUM_EPOCHS = 50
+NUM_EPOCHS = 20
 BATCH_SIZE = 16
 GRAD_ACCUMULATION = 1
 LEARNING_RATE = 2e-5
 MAX_SEQ_LENGTH = 512
-WARMUP_STEPS = 150      # 10 % of 1500 total steps (480 / 16 × 50 epochs)
+WARMUP_STEPS = 60       # 10 % of 600 total steps (480 / 16 × 20 epochs)
