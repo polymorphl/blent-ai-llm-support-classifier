@@ -48,7 +48,7 @@ The dataset contains 600 labelled support tickets in multiple languages. Only th
 | Stratified split on `queue` (80 / 20) | Preserves per-class frequency so the test set reflects the real distribution across all 10 queues. |
 | All four metadata fields in the user turn | `language` and `business_type` are strong priors for routing; including them at inference time lets the model generalise across client sectors without leaking label information. |
 | Assistant turn = bare queue label | Minimises the generation target to a fixed vocabulary, which reduces training loss noise and makes decoding deterministic. |
-| Fixed `random_seed = 42` | Ensures reproducible splits for fair comparison between the base model and the fine-tuned model. |
+| Fixed `RANDOM_SEED = 42` (split) / tuned `TRAIN_SEED` (training) | The split seed is frozen so the test set never changes between runs; the training seed is swept independently to find a good initialisation without touching the evaluation data. |
 
 ### 2. Fine-tuning
 
@@ -63,7 +63,7 @@ The dataset contains 600 labelled support tickets in multiple languages. Only th
 | Decision | Rationale |
 |---|---|
 | Discriminative classifier over generative LLM | With only 480 training examples across 10 classes, a fixed-vocabulary classifier converges faster and avoids the label-normalisation noise inherent in auto-regressive decoding. |
-| XLM-RoBERTa-large over base | The dataset spans five languages (FR, EN, DE, PT, ES); an English-only model (roberta-base) loses multilingual signal. The large variant adds ~4 pp weighted F1 over base on this task. |
+| XLM-RoBERTa-large over base | The dataset spans multiple languages (FR, EN, DE, PT); an English-only model (roberta-base) loses multilingual signal. The large variant adds ~4 pp weighted F1 over base on this task. |
 | Input = user turn only (subject + body + metadata) | The system prompt is irrelevant to a discriminative encoder; feeding only the ticket content keeps the input compact and avoids padding overhead. |
 | `fp16` training, effective batch size 16 | Fits in 24 GB while providing stable gradients; cosine LR schedule with 10 % warmup prevents early overshooting on the small dataset. |
 
@@ -89,7 +89,7 @@ uv sync
 
 > **GPU sandbox with packages already installed?** If `python -c "import torch; print(torch.__version__)"` returns a version, skip `uv sync` and install only the missing packages directly:
 > ```bash
-> pip install trl peft transformers accelerate datasets bitsandbytes scikit-learn -q
+> pip install transformers accelerate datasets scikit-learn -q
 > ```
 > Then replace `uv run python` with `python` in the commands below.
 

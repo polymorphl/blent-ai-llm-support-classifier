@@ -10,9 +10,6 @@ dependencies = [
     "torch>=2.0",
     "transformers>=4.40",
     "datasets>=2.19",
-    "trl>=0.8",
-    "peft>=0.10",
-    "bitsandbytes>=0.43",
     "accelerate>=0.29",
 ]
 
