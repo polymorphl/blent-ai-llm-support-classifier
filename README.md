@@ -85,6 +85,12 @@ $$F1 = \sum_{j=1}^{|C|} \alpha_j \, F1_j \qquad \alpha_j = \frac{n_j}{n}$$
 uv sync
 ```
 
+> **GPU sandbox with packages already installed?** If `python -c "import torch; print(torch.__version__)"` returns a version, skip `uv sync` and install only the missing packages directly:
+> ```bash
+> pip install trl peft transformers accelerate datasets bitsandbytes scikit-learn -q
+> ```
+> Then replace `uv run python` with `python` in the commands below.
+
 ### Step 1 — Build the dataset
 
 ```bash
