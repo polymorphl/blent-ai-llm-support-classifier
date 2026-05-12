@@ -36,7 +36,7 @@ SYSTEM_PROMPT = (
     "- Human Resources: HR, payroll, leave, employee administration\n"
     "- Service Outages and Maintenance: the service or platform is currently down, unavailable, or degraded; unexpected outages or scheduled maintenance affecting access\n"
     "- Sales and Pre-Sales: inquiries from potential customers before any purchase — pricing, quotes, product availability, trial requests, partnership or reseller questions\n"
-    "- General Inquiry: vague, ambiguous, or mixed requests that do not match any specific queue; when in doubt, use this queue\n"
+    "- General Inquiry: vague or ambiguous requests that do not match any specific queue above\n"
     "Respond with only the queue name, nothing else."
 )
 
@@ -55,9 +55,9 @@ TARGET_MODULES = [
 ]
 
 # Training
-NUM_EPOCHS = 20
+NUM_EPOCHS = 15
 BATCH_SIZE = 4
 GRAD_ACCUMULATION = 4        # effective batch size = 16
 LEARNING_RATE = 1e-4
 MAX_SEQ_LENGTH = 1024
-WARMUP_STEPS = 60       # 10 % of 600 total steps (480 / (batch 4 × grad_accum 4) × 20 epochs)
+WARMUP_STEPS = 45       # 10 % of 450 total steps (480 / (batch 4 × grad_accum 4) × 15 epochs)
