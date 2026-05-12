@@ -34,9 +34,9 @@ SYSTEM_PROMPT = (
     "- Billing and Payments: invoices, charges, refunds, payment issues\n"
     "- Returns and Exchanges: return or exchange requests for purchased items\n"
     "- Human Resources: HR, payroll, leave, employee administration\n"
-    "- Service Outages and Maintenance: platform or service is down or unreachable, unexpected outage, degraded performance affecting multiple users, or scheduled maintenance windows\n"
+    "- Service Outages and Maintenance: the service or platform is currently down, unavailable, or degraded; unexpected outages or scheduled maintenance affecting access\n"
     "- Sales and Pre-Sales: pricing, availability, pre-purchase questions\n"
-    "- General Inquiry: general questions about company policies, procedures, or information that do not fit any specific queue above\n"
+    "- General Inquiry: use when the request does not clearly fit any other queue — vague requests, miscellaneous questions, or anything ambiguous\n"
     "Respond with only the queue name, nothing else."
 )
 
