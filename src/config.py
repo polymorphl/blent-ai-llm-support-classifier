@@ -51,9 +51,9 @@ CLF_MODEL = "FacebookAI/xlm-roberta-base"
 CLF_MODEL_DIR = ROOT / "models" / "xlm-roberta-finetuned"
 
 # Training
-NUM_EPOCHS = 20
+NUM_EPOCHS = 30
 BATCH_SIZE = 16
 GRAD_ACCUMULATION = 1
 LEARNING_RATE = 2e-5
 MAX_SEQ_LENGTH = 512
-WARMUP_STEPS = 60       # 10 % of 600 total steps (480 / 16 × 20 epochs)
+WARMUP_STEPS = 90       # 10 % of 900 total steps (480 / 16 × 30 epochs)
