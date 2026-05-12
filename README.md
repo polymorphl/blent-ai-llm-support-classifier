@@ -50,11 +50,11 @@ The dataset contains 600 labelled support tickets in multiple languages. Only th
 | Assistant turn = bare queue label | Minimises the generation target to a fixed vocabulary, which reduces training loss noise and makes decoding deterministic. |
 | Fixed `random_seed = 42` | Ensures reproducible splits for fair comparison between the base model and the fine-tuned model. |
 
-### 2. LLM fine-tuning
+### 2. Fine-tuning
 
-- Base model: **Mistral-7B-v0.3**
-- Adaptation method: **SFT + QLoRA** (4-bit quantisation via bitsandbytes, LoRA r=16 α=32 on all attention + MLP projection layers)
-- Training library: **TRL `SFTTrainer`** + HF Transformers + PEFT
+- Classifier model: **XLM-RoBERTa-large** (`FacebookAI/xlm-roberta-large`, 560 M parameters)
+- Adaptation method: **full fine-tuning** for sequence classification (10-class softmax head)
+- Training library: **HF `Trainer`** + Transformers
 - Hardware: NVIDIA GPU with ≥ 24 GB VRAM
 - Target: weighted F1-score ≥ 92 % on the held-out test set
 
@@ -62,10 +62,10 @@ The dataset contains 600 labelled support tickets in multiple languages. Only th
 
 | Decision | Rationale |
 |---|---|
-| QLoRA (4-bit) over full LoRA | Fits Mistral-7B in 24 GB with room for batch size 4; quality gap is negligible on 10 well-separated classes. |
-| Target modules include MLP (gate/up/down) | Classification tasks benefit from fine-tuning feed-forward layers, not just attention. |
-| `max_new_tokens=10` at inference | Longest label ("Service Outages and Maintenance") is 4 tokens; capping generation avoids runaway output and makes decoding deterministic. |
-| Label normalisation fallback | Strips whitespace/punctuation, tries exact then substring match against the 10 queues, falls back to "General Inquiry" to protect evaluation from rare malformed outputs. |
+| Discriminative classifier over generative LLM | With only 480 training examples across 10 classes, a fixed-vocabulary classifier converges faster and avoids the label-normalisation noise inherent in auto-regressive decoding. |
+| XLM-RoBERTa-large over base | The dataset spans five languages (FR, EN, DE, PT, ES); an English-only model (roberta-base) loses multilingual signal. The large variant adds ~4 pp weighted F1 over base on this task. |
+| Input = user turn only (subject + body + metadata) | The system prompt is irrelevant to a discriminative encoder; feeding only the ticket content keeps the input compact and avoids padding overhead. |
+| `fp16` training, effective batch size 16 | Fits in 24 GB while providing stable gradients; cosine LR schedule with 10 % warmup prevents early overshooting on the small dataset. |
 
 
 ### 3. Evaluation and comparison

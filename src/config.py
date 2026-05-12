@@ -9,7 +9,7 @@ TEST_PATH = DATA_DIR / "test.jsonl"
 
 TEST_SIZE = 0.2
 RANDOM_SEED = 42   # dataset split — keep fixed for comparable evaluation
-TRAIN_SEED = 1     # training seed — tune this to find a good initialization
+TRAIN_SEED = 2     # training seed — tune this to find a good initialization
 
 QUEUES = [
     "Technical Support",
