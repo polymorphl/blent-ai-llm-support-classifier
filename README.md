@@ -78,6 +78,8 @@ $$F1 = \sum_{j=1}^{|C|} \alpha_j \, F1_j \qquad \alpha_j = \frac{n_j}{n}$$
 
 **Minimum required threshold: weighted F1-score ≥ 92 % (fine-tuned model).**
 
+![Per-class F1 scores — base model vs fine-tuned XLM-RoBERTa-large](evaluation_results.png)
+
 
 ## Getting started
 

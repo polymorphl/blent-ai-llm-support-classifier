@@ -9,5 +9,5 @@ __pycache__/
 # Hugging Face
 .hf_cache
 
-data/*.json
+# Models
 models/
