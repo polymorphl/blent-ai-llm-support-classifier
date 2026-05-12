@@ -35,13 +35,13 @@ SYSTEM_PROMPT = (
     "- Returns and Exchanges: return or exchange requests for purchased items\n"
     "- Human Resources: HR, payroll, leave, employee administration\n"
     "- Service Outages and Maintenance: the service or platform is currently down, unavailable, or degraded; unexpected outages or scheduled maintenance affecting access\n"
-    "- Sales and Pre-Sales: inquiries from potential customers before any purchase — pricing, quotes, product availability, trial requests, partnership or reseller questions\n"
-    "- General Inquiry: vague or ambiguous requests that do not match any specific queue above\n"
+    "- Sales and Pre-Sales: pricing, availability, pre-purchase questions\n"
+    "- General Inquiry: use when the request does not clearly fit any other queue — vague requests, miscellaneous questions, or anything ambiguous\n"
     "Respond with only the queue name, nothing else."
 )
 
 # Fine-tuning
-BASE_MODEL = "mistralai/Mistral-7B-v0.3"
+BASE_MODEL = "mistralai/Mistral-7B-Instruct-v0.3"
 MODEL_DIR = ROOT / "models" / "mistral-finetuned"
 
 # QLoRA
