@@ -29,14 +29,14 @@ SYSTEM_PROMPT = (
     "Classify the ticket into exactly one of the following queues:\n"
     "- Technical Support: external customer-facing issues with network, infrastructure, servers, or IT systems\n"
     "- Product Support: technical assistance using a product or software — setup, configuration, bugs, compatibility, feature questions\n"
-    "- Customer Service: customer complaints about service quality, defective or damaged items received, or overall dissatisfaction\n"
+    "- Customer Service: dissatisfaction with the service experience — poor support received, delivery delays, wrong or damaged item received, unresolved complaint; NOT about product functionality\n"
     "- IT Support: internal employee requests — workstation, VPN, account access, hardware provisioning\n"
     "- Billing and Payments: invoices, charges, refunds, payment issues\n"
     "- Returns and Exchanges: return or exchange requests for purchased items\n"
     "- Human Resources: HR, payroll, leave, employee administration\n"
-    "- Service Outages and Maintenance: service downtime, planned maintenance\n"
+    "- Service Outages and Maintenance: platform or service is down or unreachable, unexpected outage, degraded performance affecting multiple users, or scheduled maintenance windows\n"
     "- Sales and Pre-Sales: pricing, availability, pre-purchase questions\n"
-    "- General Inquiry: anything that does not fit the above categories\n"
+    "- General Inquiry: general questions about company policies, procedures, or information that do not fit any specific queue above\n"
     "Respond with only the queue name, nothing else."
 )
 
