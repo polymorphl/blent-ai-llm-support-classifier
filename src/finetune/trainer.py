@@ -63,19 +63,22 @@ def train():
     model.print_trainable_parameters()
 
     dataset = load_dataset("json", data_files=str(config.TRAIN_PATH), split="train")
-    dataset = dataset.map(
-        lambda ex: {"text": tokenizer.apply_chat_template(
-            ex["messages"], tokenize=False, add_generation_prompt=False
-        )},
-        batched=False,
-    )
+
+    def preprocess(example):
+        text = tokenizer.apply_chat_template(
+            example["messages"], tokenize=False, add_generation_prompt=False
+        )
+        out = tokenizer(text, truncation=True, max_length=config.MAX_SEQ_LENGTH)
+        out["labels"] = out["input_ids"].copy()
+        return out
+
+    dataset = dataset.map(preprocess, remove_columns=dataset.column_names)
 
     trainer = SFTTrainer(
         model=model,
         processing_class=tokenizer,
         train_dataset=dataset,
         args=SFTConfig(
-            dataset_text_field="text",
             max_length=config.MAX_SEQ_LENGTH,
             output_dir=str(config.MODEL_DIR),
             num_train_epochs=config.NUM_EPOCHS,
@@ -90,7 +93,6 @@ def train():
             report_to="none",
             seed=config.TRAIN_SEED,
             data_seed=config.TRAIN_SEED,
-            dataset_num_proc=1,
         ),
     )
 
