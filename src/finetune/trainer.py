@@ -6,6 +6,18 @@ from trl import SFTConfig, SFTTrainer
 
 import config
 
+_CHAT_TEMPLATE = (
+    "{{ bos_token }}"
+    "{% for message in messages %}"
+    "{% if message['role'] == 'system' %}[INST] {{ message['content'] }}\n\n"
+    "{% elif message['role'] == 'user' %}{{ message['content'] }} [/INST]"
+    "{% elif message['role'] == 'assistant' %} {{ message['content'] }}{{ eos_token }}"
+    "{% endif %}"
+    "{% endfor %}"
+    "{% if add_generation_prompt %} {% endif %}"
+)
+
+
 def load_base_model():
     model = AutoModelForCausalLM.from_pretrained(
         config.BASE_MODEL,
@@ -18,6 +30,7 @@ def load_base_model():
     tokenizer = AutoTokenizer.from_pretrained(config.BASE_MODEL)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.chat_template = _CHAT_TEMPLATE
     return model, tokenizer
 
 
