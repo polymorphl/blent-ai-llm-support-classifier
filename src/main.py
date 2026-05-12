@@ -56,11 +56,20 @@ def step_evaluate():
     ft_results = evaluate(ft_model, ft_tokenizer)
     print(f"Fine-tuned weighted F1: {ft_results['weighted_f1']:.4f}")
 
-    print("\n=== Summary ===")
-    print(f"{'Model':<25} {'Weighted F1':>12}")
-    print("-" * 38)
-    print(f"{'Mistral-7B base':<25} {base_results['weighted_f1']:>12.4f}")
-    print(f"{'Mistral-7B QLoRA':<25} {ft_results['weighted_f1']:>12.4f}")
+    print("\n=== Per-class F1 scores ===")
+    col_width = 35
+    header = f"{'Class':<{col_width}} {'Base F1':>10} {'Fine-tuned F1':>14}"
+    separator = "-" * len(header)
+    print(header)
+    print(separator)
+    base_report = base_results["classification_report"]
+    ft_report = ft_results["classification_report"]
+    for queue in config.QUEUES:
+        base_f1 = base_report.get(queue, {}).get("f1-score", 0.0)
+        ft_f1 = ft_report.get(queue, {}).get("f1-score", 0.0)
+        print(f"{queue:<{col_width}} {base_f1:>10.4f} {ft_f1:>14.4f}")
+    print(separator)
+    print(f"{'Weighted F1':<{col_width}} {base_results['weighted_f1']:>10.4f} {ft_results['weighted_f1']:>14.4f}")
 
     output = {"base": base_results, "finetuned": ft_results}
     results_path = config.DATA_DIR / "evaluation_results.json"
