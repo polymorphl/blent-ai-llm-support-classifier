@@ -39,21 +39,23 @@ def step_finetune():
 
 def step_evaluate():
     import torch
-    from peft import PeftModel
+    from transformers import AutoModelForSequenceClassification, AutoTokenizer
     from finetune.trainer import load_base_model
-    from finetune.evaluator import evaluate
+    from finetune.evaluator import evaluate, evaluate_clf
 
-    print("=== Evaluating base model (zero-shot) ===")
-    base_model, tokenizer = load_base_model()
-    base_results = evaluate(base_model, tokenizer)
+    print("=== Evaluating base model (Mistral zero-shot) ===")
+    base_model, base_tokenizer = load_base_model()
+    base_results = evaluate(base_model, base_tokenizer)
     print(f"Base weighted F1: {base_results['weighted_f1']:.4f}")
     del base_model
     torch.cuda.empty_cache()
 
-    print("\n=== Evaluating fine-tuned model ===")
-    ft_base, ft_tokenizer = load_base_model()
-    ft_model = PeftModel.from_pretrained(ft_base, str(config.MODEL_DIR))
-    ft_results = evaluate(ft_model, ft_tokenizer)
+    print("\n=== Evaluating fine-tuned RoBERTa classifier ===")
+    clf_tokenizer = AutoTokenizer.from_pretrained(str(config.CLF_MODEL_DIR))
+    clf_model = AutoModelForSequenceClassification.from_pretrained(str(config.CLF_MODEL_DIR))
+    clf_model = clf_model.to("cuda" if torch.cuda.is_available() else "cpu")
+    clf_model.eval()
+    ft_results = evaluate_clf(clf_model, clf_tokenizer)
     print(f"Fine-tuned weighted F1: {ft_results['weighted_f1']:.4f}")
 
     print("\n=== Per-class F1 scores ===")

@@ -32,3 +32,20 @@ def predict(model, tokenizer, messages: list[dict], max_new_tokens: int = 10) ->
     new_tokens = output_ids[0][inputs["input_ids"].shape[1]:]
     raw = tokenizer.decode(new_tokens, skip_special_tokens=True)
     return normalise_label(raw)
+
+
+def predict_clf(model, tokenizer, user_content: str) -> str:
+    import torch
+    from config import ID2LABEL, MAX_SEQ_LENGTH
+
+    inputs = tokenizer(
+        user_content,
+        return_tensors="pt",
+        truncation=True,
+        max_length=MAX_SEQ_LENGTH,
+    )
+    inputs = {k: v.to(model.device) for k, v in inputs.items()}
+    with torch.no_grad():
+        logits = model(**inputs).logits
+    pred_id = logits.argmax(-1).item()
+    return ID2LABEL[pred_id]

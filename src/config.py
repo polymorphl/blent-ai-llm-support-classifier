@@ -27,10 +27,10 @@ QUEUES = [
 SYSTEM_PROMPT = (
     "You are a support ticket classification agent. "
     "Classify the ticket into exactly one of the following queues:\n"
-    "- Technical Support: external customer-facing technical problems — hardware failures, network or connectivity malfunctions, server errors, application crashes or slowness affecting the customer\n"
-    "- Product Support: help with how to use a product — compatibility questions, setup, configuration, feature how-to, or firmware issues with a device or software\n"
+    "- Technical Support: external customer-facing issues with network, infrastructure, servers, or IT systems\n"
+    "- Product Support: technical assistance using a product or software — setup, configuration, bugs, compatibility, feature questions\n"
     "- Customer Service: dissatisfaction with the service experience — poor support received, delivery delays, wrong or damaged item received, unresolved complaint; NOT about product functionality\n"
-    "- IT Support: company's internal IT infrastructure — server configuration, workstation, VPN, account access, hardware provisioning, or internal tool installation\n"
+    "- IT Support: internal employee requests — workstation, VPN, account access, hardware provisioning\n"
     "- Billing and Payments: invoices, charges, refunds, payment issues\n"
     "- Returns and Exchanges: return or exchange requests for purchased items\n"
     "- Human Resources: HR, payroll, leave, employee administration\n"
@@ -40,24 +40,20 @@ SYSTEM_PROMPT = (
     "Respond with only the queue name, nothing else."
 )
 
-# Fine-tuning
-BASE_MODEL = "mistralai/Mistral-7B-v0.3"
-MODEL_DIR = ROOT / "models" / "mistral-finetuned"
+LABEL2ID = {q: i for i, q in enumerate(QUEUES)}
+ID2LABEL = {i: q for i, q in enumerate(QUEUES)}
 
-# QLoRA
-LOAD_IN_4BIT = True
-LORA_R = 32
-LORA_ALPHA = 64
-LORA_DROPOUT = 0.05
-TARGET_MODULES = [
-    "q_proj", "k_proj", "v_proj", "o_proj",
-    "gate_proj", "up_proj", "down_proj",
-]
+# Base LLM — zero-shot evaluation only
+BASE_MODEL = "mistralai/Mistral-7B-v0.3"
+
+# Classifier fine-tuning (RoBERTa)
+CLF_MODEL = "FacebookAI/roberta-base"
+CLF_MODEL_DIR = ROOT / "models" / "roberta-finetuned"
 
 # Training
-NUM_EPOCHS = 15
-BATCH_SIZE = 4
-GRAD_ACCUMULATION = 4        # effective batch size = 16
-LEARNING_RATE = 1e-4
-MAX_SEQ_LENGTH = 1024
-WARMUP_STEPS = 45       # 10 % of 450 total steps (480 / (batch 4 × grad_accum 4) × 15 epochs)
+NUM_EPOCHS = 20
+BATCH_SIZE = 16
+GRAD_ACCUMULATION = 1
+LEARNING_RATE = 2e-5
+MAX_SEQ_LENGTH = 512
+WARMUP_STEPS = 60       # 10 % of 600 total steps (480 / 16 × 20 epochs)
