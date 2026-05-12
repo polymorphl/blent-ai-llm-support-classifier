@@ -90,6 +90,7 @@ def train():
             report_to="none",
             seed=config.TRAIN_SEED,
             data_seed=config.TRAIN_SEED,
+            dataset_num_proc=1,
         ),
     )
 
