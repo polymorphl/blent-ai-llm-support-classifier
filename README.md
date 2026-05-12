@@ -93,6 +93,8 @@ uv sync
 
 ### Step 1 — Build the dataset
 
+> **Note:** `data/train.jsonl` and `data/test.jsonl` are already versioned in the repository — this step can be skipped unless you want to regenerate the splits.
+
 ```bash
 uv run python -m src.main --step dataset
 ```
