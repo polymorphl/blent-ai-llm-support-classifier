@@ -34,6 +34,7 @@ def load_base_model():
 
 
 def train():
+    """Fine-tune XLM-RoBERTa-large as a sequence classifier on the training tickets."""
     import transformers
     from transformers import (
         AutoModelForSequenceClassification,

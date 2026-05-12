@@ -3,6 +3,7 @@ from config import QUEUES
 
 
 def normalise_label(text: str) -> str:
+    """Strip punctuation and map raw model output to the nearest valid queue label."""
     text = re.sub(r"[.,!?]+$", "", text.strip())
     for queue in QUEUES:
         if queue.lower() == text.lower():
@@ -14,6 +15,7 @@ def normalise_label(text: str) -> str:
 
 
 def predict(model, tokenizer, messages: list[dict], max_new_tokens: int = 10) -> str:
+    """Generate a queue prediction from the Mistral generative model."""
     import torch
 
     text = tokenizer.apply_chat_template(
@@ -35,6 +37,7 @@ def predict(model, tokenizer, messages: list[dict], max_new_tokens: int = 10) ->
 
 
 def predict_clf(model, tokenizer, user_content: str) -> str:
+    """Predict the queue label with the XLM-RoBERTa classifier via argmax over logits."""
     import torch
     from config import ID2LABEL, MAX_SEQ_LENGTH
 

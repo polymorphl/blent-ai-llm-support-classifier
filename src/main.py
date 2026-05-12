@@ -20,6 +20,7 @@ from dataset.splitter import split
 
 
 def step_dataset():
+    """Load the seed CSV, produce a stratified train/test split, and serialise both as JSONL."""
     df = load_tickets(config.SEED_CSV)
     train_df, test_df = split(df, test_size=config.TEST_SIZE, random_seed=config.RANDOM_SEED)
     config.DATA_DIR.mkdir(exist_ok=True)
@@ -33,11 +34,13 @@ def step_dataset():
 
 
 def step_finetune():
+    """Fine-tune the XLM-RoBERTa classifier on the training set."""
     from finetune.trainer import train
     train()
 
 
 def step_evaluate():
+    """Evaluate and compare the Mistral zero-shot baseline and the fine-tuned classifier on the test set."""
     import torch
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
     from finetune.trainer import load_base_model
@@ -81,6 +84,7 @@ def step_evaluate():
 
 
 def main():
+    """CLI entry point — dispatch to the dataset, finetune, or evaluate step."""
     parser = argparse.ArgumentParser(description="LLM Support Classifier")
     parser.add_argument(
         "--step",

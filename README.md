@@ -1,6 +1,6 @@
 # LLM Fine-tuning for Multilingual Support Ticket Classification
 
-An open-weight LLM fine-tuned to automatically classify customer support requests across multiple languages and business sectors.
+A multilingual support ticket classifier built on fine-tuned XLM-RoBERTa-large, evaluated against a Mistral-7B zero-shot baseline.
 
 ## Context
 
@@ -8,7 +8,7 @@ A large support-outsourcing company handles thousands of tickets daily on behalf
 
 Currently, human agents read and manually categorize every incoming message. The growing volume makes this approach unsustainable in terms of response time and scalability.
 
-This project fine-tunes an open-weight LLM (Llama, Mistral, etc.) to automatically assign each ticket to the correct support queue, routing it to the right team faster and improving the end-customer experience.
+This project fine-tunes XLM-RoBERTa-large as a discriminative classifier to automatically assign each ticket to the correct support queue, routing it to the right team faster and improving the end-customer experience. Mistral-7B-v0.3 is used as a zero-shot baseline to quantify the gain brought by fine-tuning.
 
 ## Data
 
