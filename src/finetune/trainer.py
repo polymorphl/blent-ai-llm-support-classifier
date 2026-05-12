@@ -36,49 +36,36 @@ def load_base_model():
 
 def train():
     import transformers
-    from unsloth import FastLanguageModel
+    from peft import LoraConfig, get_peft_model
 
     transformers.set_seed(config.TRAIN_SEED)
 
-    model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=config.BASE_MODEL,
-        max_seq_length=config.MAX_SEQ_LENGTH,
-        dtype=None,
-        load_in_4bit=True,
-    )
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-    tokenizer.chat_template = _CHAT_TEMPLATE
-
-    model = FastLanguageModel.get_peft_model(
-        model,
+    model, tokenizer = load_base_model()
+    lora_config = LoraConfig(
         r=config.LORA_R,
         lora_alpha=config.LORA_ALPHA,
         lora_dropout=config.LORA_DROPOUT,
         target_modules=config.TARGET_MODULES,
         bias="none",
-        use_gradient_checkpointing="unsloth",
-        random_state=config.TRAIN_SEED,
+        task_type="CAUSAL_LM",
     )
+    model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
 
     dataset = load_dataset("json", data_files=str(config.TRAIN_PATH), split="train")
-
-    def preprocess(example):
-        text = tokenizer.apply_chat_template(
-            example["messages"], tokenize=False, add_generation_prompt=False
-        )
-        out = tokenizer(text, truncation=True, max_length=config.MAX_SEQ_LENGTH)
-        out["labels"] = out["input_ids"].copy()
-        return out
-
-    dataset = dataset.map(preprocess, remove_columns=dataset.column_names)
+    dataset = dataset.map(
+        lambda ex: {"text": tokenizer.apply_chat_template(
+            ex["messages"], tokenize=False, add_generation_prompt=False
+        )},
+        batched=False,
+    )
 
     trainer = SFTTrainer(
         model=model,
         processing_class=tokenizer,
         train_dataset=dataset,
         args=SFTConfig(
+            dataset_text_field="text",
             max_length=config.MAX_SEQ_LENGTH,
             output_dir=str(config.MODEL_DIR),
             num_train_epochs=config.NUM_EPOCHS,
