@@ -1,6 +1,5 @@
 import torch
 from datasets import load_dataset
-from peft import LoraConfig, get_peft_model
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from trl import SFTConfig, SFTTrainer
 
@@ -19,6 +18,7 @@ _CHAT_TEMPLATE = (
 
 
 def load_base_model():
+    """Load model with standard HF stack — used for evaluation."""
     model = AutoModelForCausalLM.from_pretrained(
         config.BASE_MODEL,
         dtype=torch.float16,
@@ -34,24 +34,32 @@ def load_base_model():
     return model, tokenizer
 
 
-def apply_lora(model):
-    lora_config = LoraConfig(
+def train():
+    import transformers
+    from unsloth import FastLanguageModel
+
+    transformers.set_seed(config.TRAIN_SEED)
+
+    model, tokenizer = FastLanguageModel.from_pretrained(
+        model_name=config.BASE_MODEL,
+        max_seq_length=config.MAX_SEQ_LENGTH,
+        dtype=None,
+        load_in_4bit=True,
+    )
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.chat_template = _CHAT_TEMPLATE
+
+    model = FastLanguageModel.get_peft_model(
+        model,
         r=config.LORA_R,
         lora_alpha=config.LORA_ALPHA,
         lora_dropout=config.LORA_DROPOUT,
         target_modules=config.TARGET_MODULES,
         bias="none",
-        task_type="CAUSAL_LM",
+        use_gradient_checkpointing="unsloth",
+        random_state=config.TRAIN_SEED,
     )
-    return get_peft_model(model, lora_config)
-
-
-def train():
-    import transformers
-    transformers.set_seed(config.TRAIN_SEED)
-
-    model, tokenizer = load_base_model()
-    model = apply_lora(model)
     model.print_trainable_parameters()
 
     dataset = load_dataset("json", data_files=str(config.TRAIN_PATH), split="train")
