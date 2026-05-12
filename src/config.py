@@ -55,9 +55,9 @@ TARGET_MODULES = [
 ]
 
 # Training
-NUM_EPOCHS = 15
+NUM_EPOCHS = 8
 BATCH_SIZE = 4
 GRAD_ACCUMULATION = 4        # effective batch size = 16
-LEARNING_RATE = 1e-4
+LEARNING_RATE = 2e-5
 MAX_SEQ_LENGTH = 1024
-WARMUP_STEPS = 45       # 10 % of 450 total steps (480 / (batch 4 × grad_accum 4) × 15 epochs)
+WARMUP_STEPS = 24       # 10 % of 240 total steps (480 / (batch 4 × grad_accum 4) × 8 epochs)
